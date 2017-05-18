@@ -13,8 +13,10 @@ export interface Reference {
 export interface Schema {
   properties: any;
   allOf: any;
+  oneOf: any;
   items: any;
   additionalProperties: any;
+  type: string;
 }
 
 export class SchemaNormalizer {
@@ -53,6 +55,16 @@ class SchemaWalker {
     if (obj == undefined || typeof(obj) !== 'object') {
       return;
     }
+    
+    if (obj.oneOf) {
+      obj.properties = obj.properties || {};
+      obj.type = 'object';
+      obj.properties.oneOf = { type: "object", properties: {} }
+      obj.oneOf.forEach((o,i) => { 
+        obj.properties.oneOf.properties[o.title || "opt_"+i] = o;
+      });
+    }
+
     if (obj.properties) {
       let ptr = JsonPointer.join(pointer, ['properties']);
       SchemaWalker.walkEach(obj.properties, ptr, visitor);
@@ -67,7 +79,7 @@ class SchemaWalker {
         if (res) obj.additionalProperties = res;
       }
     }
-
+    
     if (obj.allOf) {
       let ptr = JsonPointer.join(pointer, ['allOf']);
       SchemaWalker.walkEach(obj.allOf, ptr, visitor);

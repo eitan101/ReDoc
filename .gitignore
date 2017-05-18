@@ -37,3 +37,7 @@ compiled
 /coverage
 .ghpages-tmp
 stats.json
+/nbproject/private/
+nbproject/project.properties
+
+nbproject/project.xml
